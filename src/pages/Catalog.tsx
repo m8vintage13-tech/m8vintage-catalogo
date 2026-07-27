@@ -7,6 +7,7 @@ import {
 } from "../config";
 import { IconChat, IconInstagram, IconPin } from "../components/Icons";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import { Grain } from "../components/Grain";
 import { HangTag } from "../components/HangTag";
@@ -18,6 +19,7 @@ import { listProductos } from "../lib/products";
 export default function Catalog() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     listProductos()
@@ -25,6 +27,14 @@ export default function Catalog() {
       .catch((e) => console.error(e))
       .finally(() => setLoading(false));
   }, []);
+
+  // Al volver desde el detalle (link con #catalogo), saltar a la grilla
+  // de productos en vez de arrancar de nuevo en el hero.
+  useEffect(() => {
+    if (loading || location.hash !== "#catalogo") return;
+    const el = document.getElementById("catalogo");
+    el?.scrollIntoView({ block: "start" });
+  }, [loading, location.hash]);
 
   const count = String(productos.length).padStart(2, "0");
   const waGeneric = `https://wa.me/${WHATSAPP_NUMBER}`;
@@ -136,12 +146,14 @@ export default function Catalog() {
 
       {/* GRID */}
       <main
+        id="catalogo"
         style={{
           position: "relative",
           zIndex: 2,
           maxWidth: maxW,
           margin: "0 auto",
           padding: "clamp(36px, 6vw, 64px) 16px clamp(48px, 7vw, 72px)",
+          scrollMarginTop: 16,
         }}
       >
         <div

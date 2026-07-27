@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
-import { Link, useParams, useViewTransitionState } from "react-router-dom";
-import type { Producto } from "../lib/products";
-import { getProducto } from "../lib/products";
-import { C, font, display, maxW } from "../theme";
-import { formatPrecio, whatsappUrl } from "../lib/format";
-import { HangTag } from "../components/HangTag";
-import { SizeSelector } from "../components/SizeSelector";
+import { C, display, font, maxW } from "../theme";
 import { IconArrowLeft, IconChat } from "../components/Icons";
+import { Link, useParams, useViewTransitionState } from "react-router-dom";
+import { formatPrecio, whatsappUrl } from "../lib/format";
+import { useEffect, useState } from "react";
+
 import { Grain } from "../components/Grain";
+import { HangTag } from "../components/HangTag";
+import type { Producto } from "../lib/products";
+import { SizeSelector } from "../components/SizeSelector";
+import { getProducto } from "../lib/products";
 
 export default function Product() {
   const { id } = useParams();
@@ -31,7 +32,7 @@ export default function Product() {
 
   const backLink = (
     <Link
-      to="/"
+      to="/#catalogo"
       viewTransition
       style={{
         display: "inline-flex",
@@ -164,17 +165,6 @@ export default function Product() {
                 {p.categoria}
               </span>
             </span>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: C.MUTED_L,
-              }}
-            >
-              Talle {p.talle}
-            </span>
           </div>
 
           <h1
@@ -189,13 +179,13 @@ export default function Product() {
             {p.nombre}
           </h1>
 
+          <p style={{ color: C.MUTED_L, fontSize: 15, lineHeight: 4, maxWidth: "60ch", margin: 0 }}>
+            {p.descripcion}
+          </p>
+
           <div style={{ ...display, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: C.BEIGE, marginBottom: 22 }}>
             {formatPrecio(p.precio)}
           </div>
-
-          <p style={{ color: C.MUTED_L, fontSize: 15, lineHeight: 1.7, maxWidth: "60ch", margin: 0 }}>
-            {p.descripcion}
-          </p>
 
           <div style={{ margin: "30px 0", paddingTop: 24, borderTop: `1px solid ${C.LINE}` }}>
             <div
@@ -240,7 +230,7 @@ export default function Product() {
           </a>
 
           {p.vendido && (
-            <p style={{ color: C.MUTED, fontSize: 13, marginTop: 14, textAlign: "center" }}>
+            <p style={{ color: C.MUTED, fontSize: 16, marginTop: 15, textAlign: "center" }}>
               Esta pieza figura como vendida — consultá por disponibilidad.
             </p>
           )}
