@@ -150,17 +150,18 @@ export default function Product() {
         <div className="m8-rise">
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
             <span style={{ position: "relative", display: "inline-block" }}>
-              <HangTag w={78} h={30} fill={tagFill} holeColor={C.INK} />
+              <HangTag w={88} h={30} holeR={2.8} fill={tagFill} holeColor={C.INK} />
               <span
                 style={{
                   position: "absolute",
                   inset: 0,
                   display: "flex",
                   alignItems: "center",
-                  paddingLeft: 24,
-                  fontSize: 10,
+                  paddingLeft: 27,
+                  fontSize: 9,
                   fontWeight: 800,
-                  letterSpacing: "0.14em",
+                  letterSpacing: "0.03em",
+                  whiteSpace: "nowrap",
                   color: C.INK,
                 }}
               >
