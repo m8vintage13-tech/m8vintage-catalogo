@@ -62,8 +62,9 @@ export default function Admin() {
   const iconBtn = {
     display: "grid",
     placeItems: "center",
-    width: 34,
-    height: 34,
+    width: 40,
+    height: 40,
+    flexShrink: 0,
     borderRadius: 8,
     border: `1px solid ${C.LINE}`,
     background: "transparent",

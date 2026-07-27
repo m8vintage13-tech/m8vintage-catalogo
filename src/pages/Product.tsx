@@ -44,6 +44,8 @@ export default function Product() {
         fontSize: 12,
         letterSpacing: "0.12em",
         textTransform: "uppercase",
+        padding: "13px 4px",
+        margin: "-13px -4px",
       }}
     >
       <IconArrowLeft size={17} color={C.MUTED_L} /> Volver
@@ -179,7 +181,7 @@ export default function Product() {
             {p.nombre}
           </h1>
 
-          <p style={{ color: C.MUTED_L, fontSize: 15, lineHeight: 4, maxWidth: "60ch", margin: 0 }}>
+          <p style={{ color: C.MUTED_L, fontSize: 15, lineHeight: 1.7, maxWidth: "60ch", margin: 0 }}>
             {p.descripcion}
           </p>
 

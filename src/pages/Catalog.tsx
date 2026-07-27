@@ -36,7 +36,6 @@ export default function Catalog() {
     el?.scrollIntoView({ block: "start" });
   }, [loading, location.hash]);
 
-  const count = String(productos.length).padStart(2, "0");
   const waGeneric = `https://wa.me/${WHATSAPP_NUMBER}`;
 
   return (
@@ -158,28 +157,14 @@ export default function Catalog() {
       >
         <div
           style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            gap: 16,
             marginBottom: 24,
             borderBottom: `1px solid ${C.LINE}`,
             paddingBottom: 16,
           }}
         >
           <h2 style={{ ...display, color: C.CREAM, fontSize: "clamp(1.6rem, 5vw, 2.6rem)", margin: 0 }}>
-            El catálogo
+            Catálogo
           </h2>
-          <span
-            style={{
-              ...display,
-              color: C.MUTED,
-              fontSize: "clamp(1.6rem, 5vw, 2.6rem)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            /{count}
-          </span>
         </div>
 
         {loading ? (
@@ -260,14 +245,23 @@ export default function Catalog() {
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, color: C.INK, textDecoration: "none", fontWeight: 800 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                color: C.INK,
+                textDecoration: "none",
+                fontWeight: 800,
+                padding: "11px 2px",
+                margin: "-11px -2px",
+              }}
             >
               <IconInstagram size={19} color={C.INK} /> {INSTAGRAM_USER}
             </a>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <IconPin size={17} color={C.INK} /> {LOCATION}
             </span>
-            <span style={{ marginLeft: "auto", opacity: 0.75 }}>Envíos a todo el país 🇦🇷</span>
+            <span style={{ opacity: 0.75 }}>Envíos a todo el país 🇦🇷</span>
           </div>
         </div>
       </footer>
