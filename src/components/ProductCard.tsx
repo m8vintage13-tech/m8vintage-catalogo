@@ -65,17 +65,17 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
           {/* Etiqueta hang-tag */}
           <div style={{ position: "absolute", top: 12, left: 12 }}>
             <span style={{ position: "relative", display: "inline-block" }}>
-              <HangTag w={104} h={28} fill={tagFill} holeColor={ink} />
+              <HangTag w={76} h={26} holeR={2.6} fill={tagFill} holeColor={ink} />
               <span
                 style={{
                   position: "absolute",
                   inset: 0,
                   display: "flex",
                   alignItems: "center",
-                  paddingLeft: 34,
-                  fontSize: 9,
+                  paddingLeft: 22,
+                  fontSize: 8,
                   fontWeight: 800,
-                  letterSpacing: "0.08em",
+                  letterSpacing: "0.02em",
                   whiteSpace: "nowrap",
                   color: ink,
                 }}

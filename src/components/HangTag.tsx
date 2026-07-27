@@ -4,18 +4,33 @@ export function HangTag({
   fill,
   holeColor,
   rotate = 0,
+  holeR = 3.2,
 }: {
   w?: number;
   h?: number;
   fill: string;
   holeColor: string;
   rotate?: number;
+  /** Radio del ojal en píxeles reales (no en unidades del viewBox). */
+  holeR?: number;
 }) {
+  // El viewBox (46x20) casi nunca comparte proporción con el w/h pedido por
+  // cada uso (watermark, card, detalle...), así que con preserveAspectRatio
+  // "none" el SVG estira x e y con factores distintos. Un <circle> sufre esa
+  // distorsión y sale ovalado. Para que el ojal se vea SIEMPRE redondo,
+  // calculamos su rx/ry en unidades del viewBox a partir del radio en
+  // píxeles reales deseado, compensando cada eje por separado.
+  const scaleX = w / 46;
+  const scaleY = h / 20;
+  const rx = holeR / scaleX;
+  const ry = holeR / scaleY;
+
   return (
     <svg
       width={w}
       height={h}
       viewBox="0 0 46 20"
+      preserveAspectRatio="none"
       style={{ transform: `rotate(${rotate}deg)`, display: "block" }}
     >
       <path
@@ -24,7 +39,7 @@ export function HangTag({
         stroke="rgba(0,0,0,0.12)"
         strokeWidth="0.5"
       />
-      <circle cx="9" cy="10" r="2.1" fill={holeColor} opacity="0.85" />
+      <ellipse cx="9" cy="10" rx={rx} ry={ry} fill={holeColor} opacity="0.85" />
     </svg>
   );
 }
