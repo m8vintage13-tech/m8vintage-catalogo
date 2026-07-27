@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useViewTransitionState } from "react-router-dom";
 import type { Producto } from "../lib/products";
 import { C, font, display } from "../theme";
 import { formatPrecio } from "../lib/format";
@@ -18,10 +18,13 @@ export function ProductCard({
   const tagFill = p.categoria === "VINTAGE" ? C.BEIGE : C.SAGE;
   const num = String(p.orden).padStart(2, "0");
   const ink = C.INK;
+  const to = `/producto/${p.id}`;
+  const isTransitioning = useViewTransitionState(to);
 
   return (
     <Link
-      to={`/producto/${p.id}`}
+      to={to}
+      viewTransition
       className={`m8-rise${featured ? " feat" : ""}`}
       style={{ textDecoration: "none", animationDelay: `${index * 70}ms` }}
       onMouseEnter={() => setHover(true)}
@@ -61,6 +64,7 @@ export function ProductCard({
               opacity: p.vendido ? 0.4 : 1,
               transform: hover ? "scale(1.06)" : "scale(1)",
               transition: "transform .6s cubic-bezier(0.16,1,0.3,1)",
+              viewTransitionName: isTransitioning ? `product-${p.id}` : undefined,
             }}
           />
 

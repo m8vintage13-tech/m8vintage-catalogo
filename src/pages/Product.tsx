@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useViewTransitionState } from "react-router-dom";
 import type { Producto } from "../lib/products";
 import { getProducto } from "../lib/products";
 import { C, font, display, maxW } from "../theme";
@@ -14,6 +14,9 @@ export default function Product() {
   const [p, setP] = useState<Producto | null>(null);
   const [loading, setLoading] = useState(true);
   const [activa, setActiva] = useState<string>("");
+  const isTransitioning = useViewTransitionState(`/producto/${id}`);
+  // El morph solo aplica a la imagen original del producto, no a las miniaturas.
+  const morphName = isTransitioning && p && activa === p.imagen_url ? `product-${id}` : undefined;
 
   useEffect(() => {
     if (!id) return;
@@ -29,6 +32,7 @@ export default function Product() {
   const backLink = (
     <Link
       to="/"
+      viewTransition
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -109,7 +113,7 @@ export default function Product() {
             <img
               src={activa}
               alt={p.nombre}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", viewTransitionName: morphName }}
             />
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
