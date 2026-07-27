@@ -5,15 +5,7 @@ import { C, font, display } from "../theme";
 import { formatPrecio } from "../lib/format";
 import { HangTag } from "./HangTag";
 
-export function ProductCard({
-  p,
-  index = 0,
-  featured = false,
-}: {
-  p: Producto;
-  index?: number;
-  featured?: boolean;
-}) {
+export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
   const [hover, setHover] = useState(false);
   const tagFill = p.categoria === "VINTAGE" ? C.BEIGE : C.SAGE;
   const num = String(p.orden).padStart(2, "0");
@@ -25,8 +17,8 @@ export function ProductCard({
     <Link
       to={to}
       viewTransition
-      className={`m8-rise${featured ? " feat" : ""}`}
-      style={{ textDecoration: "none", animationDelay: `${index * 70}ms` }}
+      className="m8-rise"
+      style={{ textDecoration: "none", animationDelay: `${index * 70}ms`, display: "block", height: "100%" }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
@@ -45,12 +37,14 @@ export function ProductCard({
           flexDirection: "column",
         }}
       >
+        {/* Imagen */}
         <div
           style={{
             position: "relative",
             background: ink,
-            aspectRatio: featured ? "16 / 10" : "4 / 5",
+            aspectRatio: "4 / 5",
             overflow: "hidden",
+            flexShrink: 0,
           }}
         >
           <img
@@ -75,7 +69,7 @@ export function ProductCard({
               position: "absolute",
               top: 6,
               right: 12,
-              fontSize: featured ? 60 : 42,
+              fontSize: 42,
               color: hover ? ink : "#fff",
               opacity: hover ? 0.22 : 0.14,
               transition: "color .25s ease, opacity .25s ease",
@@ -134,15 +128,41 @@ export function ProductCard({
           )}
         </div>
 
+        {/* Info: nombre, descripción, talle, precio */}
         <div
           style={{
-            padding: featured ? "16px 18px 18px" : "12px 14px 15px",
+            padding: "13px 14px 15px",
             display: "flex",
             flexDirection: "column",
-            gap: 3,
+            gap: 6,
             flex: 1,
           }}
         >
+          <div
+            style={{
+              ...display,
+              fontSize: 16,
+              color: hover ? ink : C.CREAM,
+            }}
+          >
+            {p.nombre}
+          </div>
+
+          <p
+            style={{
+              margin: 0,
+              fontSize: 12,
+              lineHeight: 1.5,
+              color: hover ? "rgba(11,11,11,0.65)" : C.MUTED_L,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {p.descripcion}
+          </p>
+
           <div
             style={{
               fontSize: 10,
@@ -150,52 +170,22 @@ export function ProductCard({
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: hover ? "rgba(11,11,11,0.6)" : C.MUTED_L,
+              marginTop: "auto",
+              paddingTop: 4,
             }}
           >
             Talle {p.talle}
           </div>
-          <div
+
+          <span
             style={{
               ...display,
-              fontSize: featured ? 24 : 16,
-              color: hover ? ink : C.CREAM,
-              marginTop: 2,
+              fontSize: 18,
+              color: hover ? ink : C.BEIGE,
             }}
           >
-            {p.nombre}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-              marginTop: 6,
-            }}
-          >
-            <span
-              style={{
-                ...display,
-                fontSize: featured ? 26 : 18,
-                color: hover ? ink : C.BEIGE,
-              }}
-            >
-              {formatPrecio(p.precio)}
-            </span>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: ink,
-                opacity: hover ? 1 : 0,
-                transform: hover ? "translateX(0)" : "translateX(-6px)",
-                transition: "opacity .25s ease, transform .25s ease",
-              }}
-            >
-              Ver →
-            </span>
-          </div>
+            {formatPrecio(p.precio)}
+          </span>
         </div>
       </div>
     </Link>

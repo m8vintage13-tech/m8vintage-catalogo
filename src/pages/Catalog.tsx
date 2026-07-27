@@ -32,8 +32,7 @@ export default function Catalog() {
     <div style={{ fontFamily: font, background: C.INK, minHeight: "100vh", position: "relative" }}>
       <Grain />
       <style>{`
-        .m8-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .m8-grid > .feat { grid-column: span 2; }
+        .m8-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: stretch; }
         @media (min-width: 768px) {
           .m8-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
         }
@@ -179,7 +178,7 @@ export default function Catalog() {
         ) : (
           <div className="m8-grid">
             {productos.map((p, i) => (
-              <ProductCard key={p.id} p={p} index={i} featured={i === 0} />
+              <ProductCard key={p.id} p={p} index={i} />
             ))}
           </div>
         )}
