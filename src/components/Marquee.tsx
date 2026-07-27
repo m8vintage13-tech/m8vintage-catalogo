@@ -12,8 +12,14 @@ export function Marquee({
   color: string;
   sep?: string;
 }) {
-  // Se duplica el contenido para un loop sin costura (-50% de traslación).
-  const seq = [...items, ...items];
+  // Loop sin costura vía translateX(-50%): el track son dos mitades
+  // idénticas. Cada mitad se repite varias veces para que su ancho supere
+  // el de cualquier viewport realista — si una mitad fuera más angosta que
+  // la pantalla, al final del ciclo no quedaría contenido para llenarla y
+  // aparecería un hueco en blanco antes de reiniciar.
+  const REPEAT = 6;
+  const half = Array.from({ length: REPEAT }, () => items).flat();
+  const seq = [...half, ...half];
   return (
     <div
       style={{
