@@ -1,4 +1,4 @@
-import { C, eyebrow } from "../theme";
+import { C, display } from "../theme";
 
 const TALLES = ["XS", "S", "M", "L", "XL"];
 
@@ -7,12 +7,13 @@ export function SizeSelector({ talle }: { talle: string }) {
     return (
       <div
         style={{
-          ...eyebrow,
+          ...display,
           display: "inline-block",
-          background: C.INK,
-          color: C.BEIGE,
-          padding: "8px 14px",
-          borderRadius: 8,
+          background: C.BEIGE,
+          color: C.INK,
+          padding: "10px 16px",
+          fontSize: 14,
+          borderRadius: 4,
         }}
       >
         Talle único
@@ -27,18 +28,20 @@ export function SizeSelector({ talle }: { talle: string }) {
         return (
           <div
             key={t}
+            title={on ? "Disponible" : undefined}
             style={{
-              width: 44,
-              height: 44,
+              width: 46,
+              height: 46,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: 8,
-              fontWeight: 800,
-              fontSize: 13,
-              background: on ? C.INK : "transparent",
-              color: on ? C.BEIGE : C.MUTED,
-              border: `1px solid ${on ? C.INK : C.LINE}`,
+              borderRadius: 4,
+              fontWeight: 900,
+              fontSize: 14,
+              background: on ? C.BEIGE : "transparent",
+              color: on ? C.INK : C.MUTED,
+              border: `1px solid ${on ? C.BEIGE : C.LINE}`,
+              opacity: on ? 1 : 0.55,
             }}
           >
             {t}

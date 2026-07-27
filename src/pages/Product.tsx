@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { Producto } from "../lib/products";
 import { getProducto } from "../lib/products";
-import { C, font, eyebrow } from "../theme";
+import { C, font, display, maxW } from "../theme";
 import { formatPrecio, whatsappUrl } from "../lib/format";
 import { HangTag } from "../components/HangTag";
 import { SizeSelector } from "../components/SizeSelector";
 import { IconArrowLeft, IconChat } from "../components/Icons";
+import { Grain } from "../components/Grain";
 
 export default function Product() {
   const { id } = useParams();
@@ -32,172 +33,215 @@ export default function Product() {
         display: "inline-flex",
         alignItems: "center",
         gap: 8,
-        color: C.INK,
+        color: C.MUTED_L,
         textDecoration: "none",
-        fontWeight: 700,
-        fontSize: 14,
+        fontWeight: 800,
+        fontSize: 12,
+        letterSpacing: "0.12em",
+        textTransform: "uppercase",
       }}
     >
-      <IconArrowLeft size={18} color={C.INK} /> Volver al catálogo
+      <IconArrowLeft size={17} color={C.MUTED_L} /> Volver
     </Link>
   );
 
-  if (loading) {
-    return (
-      <div style={{ fontFamily: font, background: C.CREAM, minHeight: "100vh", padding: 24 }}>
-        <p style={{ color: C.MUTED }}>Cargando…</p>
-      </div>
-    );
-  }
-
-  if (!p) {
-    return (
-      <div style={{ fontFamily: font, background: C.CREAM, minHeight: "100vh", padding: 24 }}>
-        {backLink}
-        <p style={{ color: C.INK, marginTop: 24, fontWeight: 700 }}>Producto no encontrado.</p>
-      </div>
-    );
-  }
-
-  const tagFill = p.categoria === "VINTAGE" ? C.BEIGE : C.SAGE;
-  const ref = `#M8-${String(p.orden).padStart(2, "0")}`;
-  const miniaturas = [p.imagen_url, p.imagen_url, p.imagen_url];
-
-  return (
-    <div style={{ fontFamily: font, background: C.CREAM, minHeight: "100vh" }}>
-      <style>{`
-        .m8-detail { display: grid; grid-template-columns: 1fr; gap: 28px; }
-        @media (min-width: 768px) { .m8-detail { grid-template-columns: 1fr 1fr; gap: 40px; } }
-      `}</style>
-
-      <div style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 56px" }}>
-        {backLink}
-
-        <div className="m8-detail" style={{ marginTop: 20 }}>
-          {/* Galería */}
-          <div>
-            <div
-              style={{
-                background: C.INK,
-                borderRadius: 16,
-                overflow: "hidden",
-                aspectRatio: "3/4",
-              }}
-            >
-              <img
-                src={activa}
-                alt={p.nombre}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </div>
-            <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-              {miniaturas.map((src, i) => {
-                const on = src === activa;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => setActiva(src)}
-                    style={{
-                      width: 72,
-                      height: 72,
-                      padding: 0,
-                      borderRadius: 10,
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      background: C.INK,
-                      border: `2px solid ${on ? C.INK : "transparent"}`,
-                    }}
-                  >
-                    <img
-                      src={src}
-                      alt=""
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Info */}
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ position: "relative", display: "inline-block" }}>
-                <HangTag w={72} h={28} fill={tagFill} holeColor={C.INK} />
-                <span
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    paddingLeft: 22,
-                    fontSize: 9,
-                    fontWeight: 800,
-                    letterSpacing: "0.14em",
-                    color: C.INK,
-                  }}
-                >
-                  {p.categoria}
-                </span>
-              </span>
-              <span style={{ ...eyebrow, color: C.MUTED }}>{ref}</span>
-            </div>
-
-            <h1
-              style={{
-                fontWeight: 900,
-                fontSize: 30,
-                letterSpacing: "-0.5px",
-                color: C.INK,
-                margin: "16px 0 8px",
-              }}
-            >
-              {p.nombre}
-            </h1>
-
-            <div
-              style={{
-                fontWeight: 900,
-                fontSize: 32,
-                letterSpacing: "-0.5px",
-                color: C.INK,
-                marginBottom: 16,
-              }}
-            >
-              {formatPrecio(p.precio)}
-            </div>
-
-            <p style={{ color: C.MUTED, fontSize: 15, lineHeight: 1.6, maxWidth: 460 }}>
-              {p.descripcion}
-            </p>
-
-            <div style={{ margin: "24px 0" }}>
-              <div style={{ ...eyebrow, color: C.MUTED, marginBottom: 10 }}>Talle</div>
-              <SizeSelector talle={p.talle} />
-            </div>
-
-            <a
-              href={whatsappUrl(p.nombre, formatPrecio(p.precio))}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                background: C.INK,
-                color: C.BEIGE,
-                textDecoration: "none",
-                fontWeight: 800,
-                fontSize: 15,
-                padding: "14px 24px",
-                borderRadius: 12,
-              }}
-            >
-              <IconChat size={20} color={C.BEIGE} /> Consultar por WhatsApp
-            </a>
-          </div>
-        </div>
+  const shell = (children: React.ReactNode) => (
+    <div style={{ fontFamily: font, background: C.INK, minHeight: "100vh", position: "relative" }}>
+      <Grain />
+      <div style={{ position: "relative", zIndex: 2, maxWidth: maxW, margin: "0 auto", padding: "22px 16px 64px" }}>
+        {children}
       </div>
     </div>
+  );
+
+  if (loading) return shell(<p style={{ color: C.MUTED }}>Cargando…</p>);
+
+  if (!p)
+    return shell(
+      <>
+        {backLink}
+        <p style={{ color: C.CREAM, marginTop: 28, ...display, fontSize: 22 }}>
+          Producto no encontrado.
+        </p>
+      </>
+    );
+
+  const tagFill = p.categoria === "VINTAGE" ? C.BEIGE : C.SAGE;
+  const ref = `M8-${String(p.orden).padStart(2, "0")}`;
+  const miniaturas = [p.imagen_url, p.imagen_url, p.imagen_url];
+
+  return shell(
+    <>
+      <style>{`
+        .m8-detail { display: grid; grid-template-columns: 1fr; gap: 26px; }
+        @media (min-width: 900px) {
+          .m8-detail { grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: start; }
+          .m8-detail .m8-gallery { position: sticky; top: 24px; }
+        }
+      `}</style>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: `1px solid ${C.LINE}`,
+          paddingBottom: 16,
+          marginBottom: 26,
+        }}
+      >
+        {backLink}
+        <span style={{ ...display, color: C.MUTED, fontSize: 13, letterSpacing: "0.1em" }}>#{ref}</span>
+      </div>
+
+      <div className="m8-detail">
+        {/* Galería */}
+        <div className="m8-gallery">
+          <div
+            style={{
+              background: C.CARD,
+              borderRadius: 6,
+              overflow: "hidden",
+              aspectRatio: "4 / 5",
+              border: `1px solid ${C.LINE}`,
+            }}
+          >
+            <img
+              src={activa}
+              alt={p.nombre}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+            {miniaturas.map((src, i) => {
+              const on = src === activa;
+              return (
+                <button
+                  key={i}
+                  onClick={() => setActiva(src)}
+                  style={{
+                    width: 76,
+                    height: 76,
+                    padding: 0,
+                    borderRadius: 4,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    background: C.CARD,
+                    border: `2px solid ${on ? C.BEIGE : C.LINE}`,
+                    opacity: on ? 1 : 0.6,
+                    transition: "opacity .2s ease, border-color .2s ease",
+                  }}
+                >
+                  <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="m8-rise">
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+            <span style={{ position: "relative", display: "inline-block" }}>
+              <HangTag w={78} h={30} fill={tagFill} holeColor={C.INK} />
+              <span
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  paddingLeft: 24,
+                  fontSize: 10,
+                  fontWeight: 800,
+                  letterSpacing: "0.14em",
+                  color: C.INK,
+                }}
+              >
+                {p.categoria}
+              </span>
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: C.MUTED_L,
+              }}
+            >
+              Talle {p.talle}
+            </span>
+          </div>
+
+          <h1
+            style={{
+              ...display,
+              fontSize: "clamp(2.2rem, 6vw, 3.6rem)",
+              color: C.CREAM,
+              margin: "0 0 14px",
+              textWrap: "balance",
+            }}
+          >
+            {p.nombre}
+          </h1>
+
+          <div style={{ ...display, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: C.BEIGE, marginBottom: 22 }}>
+            {formatPrecio(p.precio)}
+          </div>
+
+          <p style={{ color: C.MUTED_L, fontSize: 15, lineHeight: 1.7, maxWidth: "60ch", margin: 0 }}>
+            {p.descripcion}
+          </p>
+
+          <div style={{ margin: "30px 0", paddingTop: 24, borderTop: `1px solid ${C.LINE}` }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: C.MUTED,
+                marginBottom: 12,
+              }}
+            >
+              Talle
+            </div>
+            <SizeSelector talle={p.talle} />
+          </div>
+
+          <a
+            href={whatsappUrl(p.nombre, formatPrecio(p.precio))}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 12,
+              width: "100%",
+              boxSizing: "border-box",
+              background: C.BEIGE,
+              color: C.INK,
+              textDecoration: "none",
+              ...display,
+              fontSize: 16,
+              padding: "18px 24px",
+              borderRadius: 4,
+              transition: "transform .2s ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "none")}
+          >
+            <IconChat size={21} color={C.INK} /> Consultar por WhatsApp
+          </a>
+
+          {p.vendido && (
+            <p style={{ color: C.MUTED, fontSize: 13, marginTop: 14, textAlign: "center" }}>
+              Esta pieza figura como vendida — consultá por disponibilidad.
+            </p>
+          )}
+        </div>
+      </div>
+    </>
   );
 }

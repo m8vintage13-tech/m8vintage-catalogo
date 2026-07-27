@@ -4,9 +4,36 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B0B0B" />
     <title>M8 · Vintage & Streetwear</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; background: #0B0B0B; }
+      body {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        overflow-x: hidden;
+      }
+      ::selection { background: #E3D0AC; color: #0B0B0B; }
+      ::-webkit-scrollbar { width: 11px; height: 11px; }
+      ::-webkit-scrollbar-track { background: #0B0B0B; }
+      ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 6px; }
+      ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+      @keyframes m8rise { to { opacity: 1; transform: none; } }
+      @keyframes m8marquee { to { transform: translateX(-50%); } }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .m8-rise {
+          opacity: 0;
+          transform: translateY(18px);
+          animation: m8rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .m8-marquee-track { animation: m8marquee 26s linear infinite; }
+      }
+    </style>
   </head>
-  <body style="margin:0">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

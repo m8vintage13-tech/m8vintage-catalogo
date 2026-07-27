@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import type { Producto } from "../lib/products";
 import { listProductos } from "../lib/products";
-import { C, font, eyebrow } from "../theme";
-import { INSTAGRAM_USER, INSTAGRAM_URL, LOCATION } from "../config";
+import { C, font, display, maxW } from "../theme";
+import {
+  INSTAGRAM_USER,
+  INSTAGRAM_URL,
+  LOCATION,
+  WHATSAPP_NUMBER,
+} from "../config";
 import { HangTag } from "../components/HangTag";
-import { IconInstagram, IconPin } from "../components/Icons";
+import { IconInstagram, IconPin, IconChat } from "../components/Icons";
 import { ProductCard } from "../components/ProductCard";
+import { Marquee } from "../components/Marquee";
+import { Grain } from "../components/Grain";
 
 export default function Catalog() {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -18,155 +25,238 @@ export default function Catalog() {
       .finally(() => setLoading(false));
   }, []);
 
+  const count = String(productos.length).padStart(2, "0");
+  const waGeneric = `https://wa.me/${WHATSAPP_NUMBER}`;
+
   return (
-    <div style={{ fontFamily: font, background: C.CREAM, minHeight: "100vh" }}>
+    <div style={{ fontFamily: font, background: C.INK, minHeight: "100vh", position: "relative" }}>
+      <Grain />
       <style>{`
-        .m8-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-        @media (min-width: 768px) { .m8-grid { grid-template-columns: repeat(3, 1fr); } }
+        .m8-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .m8-grid > .feat { grid-column: span 2; }
+        @media (min-width: 768px) {
+          .m8-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        }
+        .m8-hero-h1 { font-size: clamp(3.2rem, 14vw, 8rem); }
       `}</style>
 
       {/* HERO */}
       <header
         style={{
-          background: C.INK,
-          color: C.CREAM,
-          padding: "56px 20px 60px",
           position: "relative",
           overflow: "hidden",
-          textAlign: "center",
+          padding: "clamp(48px, 9vw, 96px) 20px clamp(40px, 7vw, 72px)",
+          zIndex: 2,
         }}
       >
+        {/* Watermark hang-tag */}
         <div
           style={{
             position: "absolute",
-            top: "50%",
+            top: "42%",
             left: "50%",
             transform: "translate(-50%,-50%)",
-            opacity: 0.05,
+            opacity: 0.045,
             pointerEvents: "none",
           }}
         >
-          <HangTag w={520} h={230} fill={C.BEIGE} holeColor={C.INK} rotate={18} />
+          <HangTag w={720} h={320} fill={C.BEIGE} holeColor={C.INK} rotate={-14} />
         </div>
 
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative", maxWidth: maxW, margin: "0 auto", textAlign: "center" }}>
           <img
             src="/logo.png"
             alt="M8"
+            className="m8-rise"
             style={{
-              width: 96,
-              height: 96,
+              width: "clamp(88px, 15vw, 132px)",
+              height: "clamp(88px, 15vw, 132px)",
               borderRadius: "50%",
               border: `3px solid ${C.BEIGE}`,
               objectFit: "cover",
               background: C.INK,
+              boxShadow: "0 0 0 8px rgba(227,208,172,0.06), 0 24px 60px -20px rgba(0,0,0,0.9)",
             }}
           />
-          <div
-            style={{
-              ...eyebrow,
-              color: C.BEIGE,
-              marginTop: 18,
-              letterSpacing: "0.22em",
-            }}
-          >
-            M8 · Buenos Aires
-          </div>
+
           <h1
+            className="m8-hero-h1 m8-rise"
             style={{
-              fontWeight: 900,
-              fontSize: 40,
-              letterSpacing: "-0.5px",
-              margin: "10px 0 6px",
+              ...display,
+              margin: "clamp(20px, 4vw, 34px) 0 0",
               color: C.CREAM,
+              textWrap: "balance",
+              animationDelay: "80ms",
             }}
           >
-            Vintage &amp; Streetwear
+            Vintage
+            <br />
+            <span style={{ color: C.BEIGE }}>&amp; Streetwear</span>
           </h1>
-          <p style={{ color: C.MUTED_L, margin: 0, fontSize: 14, fontWeight: 600 }}>
-            Prendas Seleccionadas 🇺🇸
-          </p>
+
+          {/* Meta row */}
+          <div
+            className="m8-rise"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px 18px",
+              marginTop: 22,
+              animationDelay: "160ms",
+            }}
+          >
+            {["M8 · Rosario", "Prendas seleccionadas 🇺🇸", `${count} piezas`].map((t, i) => (
+              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "10px 18px" }}>
+                {i > 0 && <span style={{ width: 5, height: 5, borderRadius: "50%", background: C.MUTED }} />}
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                    color: C.MUTED_L,
+                  }}
+                >
+                  {t}
+                </span>
+              </span>
+            ))}
+          </div>
         </div>
       </header>
 
+      {/* MARQUEE */}
+      <Marquee
+        items={["Vintage", "Streetwear", "Basketball", "90s", "M8"]}
+        bg={C.BEIGE}
+        color={C.INK}
+      />
+
       {/* GRID */}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "28px 16px 48px" }}>
+      <main
+        style={{
+          position: "relative",
+          zIndex: 2,
+          maxWidth: maxW,
+          margin: "0 auto",
+          padding: "clamp(36px, 6vw, 64px) 16px clamp(48px, 7vw, 72px)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: 16,
+            marginBottom: 24,
+            borderBottom: `1px solid ${C.LINE}`,
+            paddingBottom: 16,
+          }}
+        >
+          <h2 style={{ ...display, color: C.CREAM, fontSize: "clamp(1.6rem, 5vw, 2.6rem)", margin: 0 }}>
+            El catálogo
+          </h2>
+          <span
+            style={{
+              ...display,
+              color: C.MUTED,
+              fontSize: "clamp(1.6rem, 5vw, 2.6rem)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            /{count}
+          </span>
+        </div>
+
         {loading ? (
-          <p style={{ color: C.MUTED, textAlign: "center" }}>Cargando productos…</p>
+          <p style={{ color: C.MUTED, textAlign: "center", padding: "40px 0" }}>Cargando…</p>
         ) : productos.length === 0 ? (
-          <p style={{ color: C.MUTED, textAlign: "center" }}>
+          <p style={{ color: C.MUTED, textAlign: "center", padding: "40px 0" }}>
             Todavía no hay productos cargados.
           </p>
         ) : (
           <div className="m8-grid">
-            {productos.map((p) => (
-              <ProductCard key={p.id} p={p} />
+            {productos.map((p, i) => (
+              <ProductCard key={p.id} p={p} index={i} featured={i === 0} />
             ))}
           </div>
         )}
       </main>
 
-      {/* FOOTER */}
-      <footer>
-        <div
-          style={{
-            background: C.CREAM,
-            borderTop: `1px solid #e0dccf`,
-            padding: "28px 20px",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ ...eyebrow, color: C.MUTED, marginBottom: 6 }}>Consultas</div>
-          <div style={{ fontWeight: 800, fontSize: 18, color: C.INK }}>
-            Consultá disponibilidad por WhatsApp
+      {/* FOOTER — slab beige */}
+      <footer style={{ position: "relative", zIndex: 2, background: C.BEIGE, color: C.INK }}>
+        <div style={{ maxWidth: maxW, margin: "0 auto", padding: "clamp(44px, 7vw, 72px) 20px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 24,
+            }}
+          >
+            <div>
+              <h2
+                style={{
+                  ...display,
+                  fontSize: "clamp(2rem, 7vw, 4rem)",
+                  margin: 0,
+                }}
+              >
+                ¿Te gusta
+                <br />
+                algo?
+              </h2>
+            </div>
+            <a
+              href={waGeneric}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 12,
+                background: C.INK,
+                color: C.BEIGE,
+                textDecoration: "none",
+                ...display,
+                fontSize: 16,
+                padding: "18px 28px",
+                borderRadius: 4,
+              }}
+            >
+              <IconChat size={22} color={C.BEIGE} /> Consultá por WhatsApp
+            </a>
           </div>
-        </div>
 
-        <div
-          style={{
-            background: C.BEIGE,
-            color: C.INK,
-            padding: "26px 20px",
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 16,
-            textAlign: "center",
-          }}
-        >
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <div
             style={{
-              display: "inline-flex",
+              display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
-              gap: 8,
-              color: C.INK,
-              textDecoration: "none",
-              fontWeight: 800,
-            }}
-          >
-            <IconInstagram size={20} color={C.INK} /> {INSTAGRAM_USER}
-          </a>
-
-          <span style={{ width: 1, height: 22, background: "rgba(11,11,11,0.25)" }} />
-
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
+              gap: "12px 22px",
+              marginTop: 40,
+              paddingTop: 22,
+              borderTop: "1px solid rgba(11,11,11,0.2)",
               fontWeight: 700,
+              fontSize: 14,
             }}
           >
-            <IconPin size={18} color={C.INK} /> {LOCATION}
-          </span>
-
-          <span style={{ width: 1, height: 22, background: "rgba(11,11,11,0.25)" }} />
-
-          <span style={{ fontWeight: 700 }}>Envíos a todo el país 🇦🇷</span>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, color: C.INK, textDecoration: "none", fontWeight: 800 }}
+            >
+              <IconInstagram size={19} color={C.INK} /> {INSTAGRAM_USER}
+            </a>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <IconPin size={17} color={C.INK} /> {LOCATION}
+            </span>
+            <span style={{ marginLeft: "auto", opacity: 0.75 }}>Envíos a todo el país 🇦🇷</span>
+          </div>
         </div>
       </footer>
     </div>
