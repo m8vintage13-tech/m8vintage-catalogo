@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { C, display, font } from "../theme";
 import { Link, useViewTransitionState } from "react-router-dom";
-import type { Producto } from "../lib/products";
-import { C, font, display } from "../theme";
-import { formatPrecio } from "../lib/format";
+
 import { HangTag } from "./HangTag";
+import type { Producto } from "../lib/products";
+import { formatPrecio } from "../lib/format";
+import { useState } from "react";
 
 export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
   const [hover, setHover] = useState(false);
   const tagFill = p.categoria === "VINTAGE" ? C.BEIGE : C.SAGE;
-  const num = String(p.orden).padStart(2, "0");
   const ink = C.INK;
   const to = `/producto/${p.id}`;
   const isTransitioning = useViewTransitionState(to);
@@ -30,7 +30,7 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
           fontFamily: font,
           transform: hover ? "translateY(-4px)" : "none",
           transition: "background .25s ease, transform .25s cubic-bezier(0.16,1,0.3,1), box-shadow .25s ease",
-          border: `1px solid ${hover ? C.BEIGE : C.LINE}`,
+          border: `1px solid ${hover ? C.BEIGE : "rgba(227,208,172,0.22)"}`,
           boxShadow: hover ? "0 18px 40px -18px rgba(0,0,0,0.8)" : "none",
           height: "100%",
           display: "flex",
@@ -62,24 +62,6 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
             }}
           />
 
-          {/* Número editorial */}
-          <span
-            style={{
-              ...display,
-              position: "absolute",
-              top: 6,
-              right: 12,
-              fontSize: 42,
-              color: hover ? ink : "#fff",
-              opacity: hover ? 0.22 : 0.14,
-              transition: "color .25s ease, opacity .25s ease",
-              lineHeight: 1,
-              pointerEvents: "none",
-            }}
-          >
-            {num}
-          </span>
-
           {/* Etiqueta hang-tag */}
           <div style={{ position: "absolute", top: 12, left: 12 }}>
             <span style={{ position: "relative", display: "inline-block" }}>
@@ -91,7 +73,7 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
                   display: "flex",
                   alignItems: "center",
                   paddingLeft: 23,
-                  fontSize: 9,
+                  fontSize: 8,
                   fontWeight: 800,
                   letterSpacing: "0.14em",
                   color: ink,
@@ -141,7 +123,8 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
           <div
             style={{
               ...display,
-              fontSize: 16,
+              fontSize: 18,
+              lineHeight: 1.5,
               color: hover ? ink : C.CREAM,
             }}
           >
@@ -151,8 +134,8 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
           <p
             style={{
               margin: 0,
-              fontSize: 12,
-              lineHeight: 1.5,
+              fontSize: 13,
+
               color: hover ? "rgba(11,11,11,0.65)" : C.MUTED_L,
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -174,13 +157,14 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
               paddingTop: 4,
             }}
           >
-            Talle {p.talle}
+            Talle: {p.talle}
           </div>
 
           <span
             style={{
               ...display,
               fontSize: 18,
+              lineHeight: 1.5,
               color: hover ? ink : C.BEIGE,
             }}
           >
