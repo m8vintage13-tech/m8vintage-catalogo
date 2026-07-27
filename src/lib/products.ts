@@ -20,8 +20,16 @@ export type NuevoProducto = Omit<Producto, "id" | "creado_en" | "imagen_url"> & 
   imagen_url?: string;
 };
 
+// Store en memoria para el modo demo (sin Supabase). Permite ver/probar el
+// panel admin interactivo. No persiste al recargar la página.
+let demoData: Producto[] = [...SEED];
+
+function sortByOrden(a: Producto, b: Producto) {
+  return a.orden - b.orden;
+}
+
 export async function listProductos(): Promise<Producto[]> {
-  if (!supabaseEnabled) return [...SEED];
+  if (!supabaseEnabled) return [...demoData].sort(sortByOrden);
   const { data, error } = await supabase
     .from("productos")
     .select("*")
@@ -31,7 +39,7 @@ export async function listProductos(): Promise<Producto[]> {
 }
 
 export async function getProducto(id: string): Promise<Producto | null> {
-  if (!supabaseEnabled) return SEED.find((p) => p.id === id) ?? null;
+  if (!supabaseEnabled) return demoData.find((p) => p.id === id) ?? null;
   const { data, error } = await supabase
     .from("productos")
     .select("*")
@@ -56,6 +64,15 @@ export async function createProducto(
   data: NuevoProducto,
   file: File
 ): Promise<void> {
+  if (!supabaseEnabled) {
+    demoData.push({
+      ...data,
+      id: crypto.randomUUID(),
+      imagen_url: URL.createObjectURL(file),
+      creado_en: new Date().toISOString(),
+    });
+    return;
+  }
   const imagen_url = await uploadImagen(file);
   const { error } = await supabase.from("productos").insert({ ...data, imagen_url });
   if (error) throw error;
@@ -66,6 +83,14 @@ export async function updateProducto(
   data: Partial<NuevoProducto>,
   file?: File
 ): Promise<void> {
+  if (!supabaseEnabled) {
+    demoData = demoData.map((p) =>
+      p.id === id
+        ? { ...p, ...data, imagen_url: file ? URL.createObjectURL(file) : p.imagen_url }
+        : p
+    );
+    return;
+  }
   const patch: Record<string, unknown> = { ...data };
   if (file) patch.imagen_url = await uploadImagen(file);
   const { error } = await supabase.from("productos").update(patch).eq("id", id);
@@ -73,11 +98,19 @@ export async function updateProducto(
 }
 
 export async function deleteProducto(id: string): Promise<void> {
+  if (!supabaseEnabled) {
+    demoData = demoData.filter((p) => p.id !== id);
+    return;
+  }
   const { error } = await supabase.from("productos").delete().eq("id", id);
   if (error) throw error;
 }
 
 export async function toggleVendido(id: string, vendido: boolean): Promise<void> {
+  if (!supabaseEnabled) {
+    demoData = demoData.map((p) => (p.id === id ? { ...p, vendido } : p));
+    return;
+  }
   const { error } = await supabase
     .from("productos")
     .update({ vendido })
@@ -89,6 +122,14 @@ export async function statsAdmin(): Promise<{ activos: number; vendidosMes: numb
   const inicioMes = new Date();
   inicioMes.setDate(1);
   inicioMes.setHours(0, 0, 0, 0);
+
+  if (!supabaseEnabled) {
+    const activos = demoData.filter((p) => !p.vendido).length;
+    const vendidosMes = demoData.filter(
+      (p) => p.vendido && new Date(p.creado_en) >= inicioMes
+    ).length;
+    return { activos, vendidosMes };
+  }
 
   const { count: activos } = await supabase
     .from("productos")

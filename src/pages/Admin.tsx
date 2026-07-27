@@ -8,6 +8,7 @@ import {
   toggleVendido,
 } from "../lib/products";
 import { signOut } from "../lib/auth";
+import { supabaseEnabled } from "../lib/supabase";
 import { C, font, eyebrow } from "../theme";
 import { formatPrecio } from "../lib/format";
 import { HangTag } from "../components/HangTag";
@@ -93,26 +94,48 @@ export default function Admin() {
             >
               Ver catálogo
             </Link>
-            <button
-              onClick={async () => {
-                await signOut();
-                location.reload();
-              }}
-              style={{
-                background: "transparent",
-                border: `1px solid ${C.LINE}`,
-                color: C.MUTED_L,
-                borderRadius: 8,
-                padding: "8px 14px",
-                fontWeight: 700,
-                fontFamily: font,
-                cursor: "pointer",
-              }}
-            >
-              Salir
-            </button>
+            {supabaseEnabled && (
+              <button
+                onClick={async () => {
+                  await signOut();
+                  location.reload();
+                }}
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${C.LINE}`,
+                  color: C.MUTED_L,
+                  borderRadius: 8,
+                  padding: "8px 14px",
+                  fontWeight: 700,
+                  fontFamily: font,
+                  cursor: "pointer",
+                }}
+              >
+                Salir
+              </button>
+            )}
           </div>
         </div>
+
+        {!supabaseEnabled && (
+          <div
+            style={{
+              marginTop: 18,
+              background: "rgba(227,208,172,0.10)",
+              border: `1px solid ${C.LINE}`,
+              borderRadius: 12,
+              padding: "12px 16px",
+              color: C.MUTED_L,
+              fontSize: 13,
+              lineHeight: 1.5,
+            }}
+          >
+            <b style={{ color: C.BEIGE }}>Modo demo</b> — panel abierto sin login para
+            ver el diseño. Los cambios funcionan en memoria y se reinician al recargar.
+            Al configurar Supabase (<code>.env</code>) se activa el login y la
+            persistencia real.
+          </div>
+        )}
 
         {/* Stats */}
         <div style={{ display: "flex", gap: 14, marginTop: 22, flexWrap: "wrap" }}>

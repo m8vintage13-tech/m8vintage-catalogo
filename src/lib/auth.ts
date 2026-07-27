@@ -31,5 +31,6 @@ export async function signIn(
 }
 
 export async function signOut(): Promise<void> {
+  if (!supabaseEnabled) return;
   await supabase.auth.signOut();
 }

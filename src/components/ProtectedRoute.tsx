@@ -7,7 +7,8 @@ import { C, font } from "../theme";
 export function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { session, loading } = useSession();
 
-  if (!supabaseEnabled) return <Login />;
+  // Modo demo (sin Supabase): panel abierto sin login para ver el diseño.
+  if (!supabaseEnabled) return children;
   if (loading) {
     return (
       <div
