@@ -20,12 +20,42 @@ export type NuevoProducto = Omit<Producto, "id" | "creado_en" | "imagen_url"> & 
   imagen_url?: string;
 };
 
-// Store en memoria para el modo demo (sin Supabase). Permite ver/probar el
-// panel admin interactivo. No persiste al recargar la página.
-let demoData: Producto[] = [...SEED];
+// Store para el modo demo (sin Supabase). Permite ver/probar el panel admin
+// interactivo. Se respalda en localStorage para que sobreviva a recargas de
+// página y a hot-reloads del dev server mientras no haya Supabase configurado.
+const DEMO_KEY = "m8_demo_productos";
+
+function loadDemoData(): Producto[] {
+  try {
+    const raw = localStorage.getItem(DEMO_KEY);
+    if (raw) return JSON.parse(raw) as Producto[];
+  } catch {
+    // localStorage corrupto o inaccesible: arranca del seed.
+  }
+  return [...SEED];
+}
+
+let demoData: Producto[] = loadDemoData();
+
+function saveDemoData() {
+  try {
+    localStorage.setItem(DEMO_KEY, JSON.stringify(demoData));
+  } catch {
+    // Sin espacio o localStorage inaccesible: el cambio queda solo en memoria.
+  }
+}
 
 function sortByOrden(a: Producto, b: Producto) {
   return a.orden - b.orden;
+}
+
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
 export async function listProductos(): Promise<Producto[]> {
@@ -68,9 +98,10 @@ export async function createProducto(
     demoData.push({
       ...data,
       id: crypto.randomUUID(),
-      imagen_url: URL.createObjectURL(file),
+      imagen_url: await readAsDataUrl(file),
       creado_en: new Date().toISOString(),
     });
+    saveDemoData();
     return;
   }
   const imagen_url = await uploadImagen(file);
@@ -84,11 +115,11 @@ export async function updateProducto(
   file?: File
 ): Promise<void> {
   if (!supabaseEnabled) {
+    const imagen_url = file ? await readAsDataUrl(file) : undefined;
     demoData = demoData.map((p) =>
-      p.id === id
-        ? { ...p, ...data, imagen_url: file ? URL.createObjectURL(file) : p.imagen_url }
-        : p
+      p.id === id ? { ...p, ...data, imagen_url: imagen_url ?? p.imagen_url } : p
     );
+    saveDemoData();
     return;
   }
   const patch: Record<string, unknown> = { ...data };
@@ -100,6 +131,7 @@ export async function updateProducto(
 export async function deleteProducto(id: string): Promise<void> {
   if (!supabaseEnabled) {
     demoData = demoData.filter((p) => p.id !== id);
+    saveDemoData();
     return;
   }
   const { error } = await supabase.from("productos").delete().eq("id", id);
@@ -109,6 +141,7 @@ export async function deleteProducto(id: string): Promise<void> {
 export async function toggleVendido(id: string, vendido: boolean): Promise<void> {
   if (!supabaseEnabled) {
     demoData = demoData.map((p) => (p.id === id ? { ...p, vendido } : p));
+    saveDemoData();
     return;
   }
   const { error } = await supabase

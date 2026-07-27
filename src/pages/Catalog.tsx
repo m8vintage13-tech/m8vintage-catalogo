@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
-import type { Producto } from "../lib/products";
-import { listProductos } from "../lib/products";
-import { C, font, display, maxW } from "../theme";
+import { C, display, font, maxW } from "../theme";
 import {
-  INSTAGRAM_USER,
   INSTAGRAM_URL,
+  INSTAGRAM_USER,
   LOCATION,
   WHATSAPP_NUMBER,
 } from "../config";
-import { HangTag } from "../components/HangTag";
-import { IconInstagram, IconPin, IconChat } from "../components/Icons";
-import { ProductCard } from "../components/ProductCard";
-import { Marquee } from "../components/Marquee";
+import { IconChat, IconInstagram, IconPin } from "../components/Icons";
+import { useEffect, useState } from "react";
+
 import { Grain } from "../components/Grain";
+import { HangTag } from "../components/HangTag";
+import { Marquee } from "../components/Marquee";
+import { ProductCard } from "../components/ProductCard";
+import type { Producto } from "../lib/products";
+import { listProductos } from "../lib/products";
 
 export default function Catalog() {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -106,12 +107,12 @@ export default function Catalog() {
               animationDelay: "160ms",
             }}
           >
-            {["Prendas seleccionadas 🇺🇸"].map((t, i) => (
+            {["Prendas seleccionadas"].map((t, i) => (
               <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "10px 18px" }}>
                 {i > 0 && <span style={{ width: 5, height: 5, borderRadius: "50%", background: C.MUTED }} />}
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: 800,
                     letterSpacing: "0.16em",
                     textTransform: "uppercase",

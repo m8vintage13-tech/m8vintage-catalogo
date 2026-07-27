@@ -131,9 +131,9 @@ export default function Admin() {
             }}
           >
             <b style={{ color: C.BEIGE }}>Modo demo</b> — panel abierto sin login para
-            ver el diseño. Los cambios funcionan en memoria y se reinician al recargar.
-            Al configurar Supabase (<code>.env</code>) se activa el login y la
-            persistencia real.
+            ver el diseño. Los cambios se guardan en este navegador (localStorage), no
+            en una base de datos real. Al configurar Supabase (<code>.env</code>) se
+            activa el login y la persistencia real.
           </div>
         )}
 
