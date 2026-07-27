@@ -36,7 +36,7 @@ export default function Catalog() {
         @media (min-width: 768px) {
           .m8-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
         }
-        .m8-hero-h1 { font-size: clamp(3.2rem, 14vw, 8rem); }
+        .m8-hero-h1 { font-size: clamp(2.2rem, 8vw, 4.5rem); }
       `}</style>
 
       {/* HERO */}
@@ -68,8 +68,8 @@ export default function Catalog() {
             alt="M8"
             className="m8-rise"
             style={{
-              width: "clamp(88px, 15vw, 132px)",
-              height: "clamp(88px, 15vw, 132px)",
+              width: "clamp(120px, 22vw, 200px)",
+              height: "clamp(120px, 22vw, 200px)",
               borderRadius: "50%",
               border: `3px solid ${C.BEIGE}`,
               objectFit: "cover",
@@ -106,7 +106,7 @@ export default function Catalog() {
               animationDelay: "160ms",
             }}
           >
-            {["M8 · Rosario", "Prendas seleccionadas 🇺🇸", `${count} piezas`].map((t, i) => (
+            {["Prendas seleccionadas 🇺🇸"].map((t, i) => (
               <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "10px 18px" }}>
                 {i > 0 && <span style={{ width: 5, height: 5, borderRadius: "50%", background: C.MUTED }} />}
                 <span
