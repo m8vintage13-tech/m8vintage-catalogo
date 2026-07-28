@@ -3,12 +3,12 @@ import { Link, useViewTransitionState } from "react-router-dom";
 
 import { HangTag } from "./HangTag";
 import type { Producto } from "../lib/products";
-import { formatPrecio } from "../lib/format";
+import { formatPrecio, parseTalles } from "../lib/format";
 import { useState } from "react";
 
 export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
   const [hover, setHover] = useState(false);
-  const tagFill = p.categoria === "VINTAGE" ? C.BEIGE : C.SAGE;
+  const tagFill = p.categoria === "VINTAGE" ? C.BEIGE : p.categoria === "USADO" ? C.RUST : C.SAGE;
   const ink = C.INK;
   const to = `/producto/${p.id}`;
   const isTransitioning = useViewTransitionState(to);
@@ -48,7 +48,7 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
           }}
         >
           <img
-            src={p.imagen_url}
+            src={p.imagenes[0]}
             alt={p.nombre}
             loading="lazy"
             style={{
@@ -82,6 +82,28 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
               >
                 {p.categoria}
               </span>
+            </span>
+          </div>
+
+          {/* Puntaje de estado */}
+          <div style={{ position: "absolute", top: 12, right: 12 }}>
+            <span
+              title="Estado de la prenda"
+              style={{
+                display: "inline-flex",
+                alignItems: "baseline",
+                gap: 2,
+                background: "rgba(11,11,11,0.55)",
+                color: C.CREAM,
+                fontWeight: 800,
+                fontSize: 11,
+                padding: "5px 8px",
+                borderRadius: 20,
+                lineHeight: 1,
+              }}
+            >
+              {p.estado}
+              <span style={{ fontSize: 8, opacity: 0.7 }}>/10</span>
             </span>
           </div>
 
@@ -149,16 +171,40 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
 
           <div
             style={{
-              fontSize: 10,
-              fontWeight: 800,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: hover ? "rgba(11,11,11,0.6)" : C.MUTED_L,
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 5,
               marginTop: "auto",
               paddingTop: 4,
             }}
           >
-            Talle: {p.talle}
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: hover ? "rgba(11,11,11,0.55)" : C.MUTED_L,
+              }}
+            >
+              Talle
+            </span>
+            {parseTalles(p.talle).map((t) => (
+              <span
+                key={t}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 800,
+                  padding: "2px 7px",
+                  borderRadius: 3,
+                  border: `1px solid ${hover ? "rgba(11,11,11,0.3)" : "rgba(227,208,172,0.35)"}`,
+                  color: hover ? ink : C.CREAM,
+                }}
+              >
+                {t}
+              </span>
+            ))}
           </div>
 
           <span

@@ -1,7 +1,7 @@
 import { supabase, supabaseEnabled, BUCKET } from "./supabase";
 import { SEED } from "../data/seed";
 
-export type Categoria = "VINTAGE" | "NUEVO";
+export type Categoria = "VINTAGE" | "NUEVO" | "USADO";
 
 export interface Producto {
   id: string;
@@ -10,15 +10,20 @@ export interface Producto {
   talle: string;
   categoria: Categoria;
   descripcion: string;
-  imagen_url: string;
+  /** Fotos del producto; la primera es la portada (card + imagen principal). */
+  imagenes: string[];
   vendido: boolean;
+  /** Puntaje de estado de la prenda, 1 (muy gastada) a 10 (como nueva). */
+  estado: number;
   orden: number;
   creado_en: string;
 }
 
-export type NuevoProducto = Omit<Producto, "id" | "creado_en" | "imagen_url"> & {
-  imagen_url?: string;
-};
+// "orden" ya no se completa a mano en el form: se autoasigna al crear
+// (siguiente número de la lista) y se mantiene fijo al editar. "imagenes"
+// tampoco viaja en el objeto de datos: createProducto/updateProducto la
+// arman a partir de los archivos subidos (ver más abajo).
+export type NuevoProducto = Omit<Producto, "id" | "creado_en" | "imagenes" | "orden">;
 
 // Store para el modo demo (sin Supabase). Permite ver/probar el panel admin
 // interactivo. Se respalda en localStorage para que sobreviva a recargas de
@@ -28,7 +33,12 @@ const DEMO_KEY = "m8_demo_productos";
 function loadDemoData(): Producto[] {
   try {
     const raw = localStorage.getItem(DEMO_KEY);
-    if (raw) return JSON.parse(raw) as Producto[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as Producto[];
+      // Datos guardados con el esquema viejo (imagen_url en vez de
+      // imagenes[]): se descartan y se vuelve a arrancar del seed.
+      if (parsed.every((p) => Array.isArray(p.imagenes))) return parsed;
+    }
   } catch {
     // localStorage corrupto o inaccesible: arranca del seed.
   }
@@ -45,7 +55,9 @@ function saveDemoData() {
   }
 }
 
+// Vendidos al final (en catálogo y admin), y dentro de cada grupo por orden.
 function sortByOrden(a: Producto, b: Producto) {
+  if (a.vendido !== b.vendido) return a.vendido ? 1 : -1;
   return a.orden - b.orden;
 }
 
@@ -63,6 +75,7 @@ export async function listProductos(): Promise<Producto[]> {
   const { data, error } = await supabase
     .from("productos")
     .select("*")
+    .order("vendido", { ascending: true })
     .order("orden", { ascending: true });
   if (error) throw error;
   return (data ?? []) as unknown as Producto[];
@@ -90,41 +103,58 @@ async function uploadImagen(file: File): Promise<string> {
   return data.publicUrl;
 }
 
+async function uploadImagenes(files: File[]): Promise<string[]> {
+  return Promise.all(files.map(uploadImagen));
+}
+
 export async function createProducto(
   data: NuevoProducto,
-  file: File
+  files: File[]
 ): Promise<void> {
   if (!supabaseEnabled) {
+    const orden = demoData.length ? Math.max(...demoData.map((p) => p.orden)) + 1 : 1;
+    const imagenes = await Promise.all(files.map(readAsDataUrl));
     demoData.push({
       ...data,
+      orden,
+      imagenes,
       id: crypto.randomUUID(),
-      imagen_url: await readAsDataUrl(file),
       creado_en: new Date().toISOString(),
     });
     saveDemoData();
     return;
   }
-  const imagen_url = await uploadImagen(file);
-  const { error } = await supabase.from("productos").insert({ ...data, imagen_url });
+  const { data: ultimo, error: ordenError } = await supabase
+    .from("productos")
+    .select("orden")
+    .order("orden", { ascending: false })
+    .limit(1);
+  if (ordenError) throw ordenError;
+  const orden = ultimo && ultimo.length ? (ultimo[0] as { orden: number }).orden + 1 : 1;
+  const imagenes = await uploadImagenes(files);
+  const { error } = await supabase.from("productos").insert({ ...data, orden, imagenes });
   if (error) throw error;
 }
 
+// "keepImagenes" son las fotos existentes que el admin no sacó al editar;
+// "newFiles" son las fotos nuevas que suma. El resultado final es la unión
+// de ambas, en ese orden (existentes primero, nuevas al final).
 export async function updateProducto(
   id: string,
   data: Partial<NuevoProducto>,
-  file?: File
+  newFiles: File[] = [],
+  keepImagenes: string[] = []
 ): Promise<void> {
   if (!supabaseEnabled) {
-    const imagen_url = file ? await readAsDataUrl(file) : undefined;
-    demoData = demoData.map((p) =>
-      p.id === id ? { ...p, ...data, imagen_url: imagen_url ?? p.imagen_url } : p
-    );
+    const nuevas = await Promise.all(newFiles.map(readAsDataUrl));
+    const imagenes = [...keepImagenes, ...nuevas];
+    demoData = demoData.map((p) => (p.id === id ? { ...p, ...data, imagenes } : p));
     saveDemoData();
     return;
   }
-  const patch: Record<string, unknown> = { ...data };
-  if (file) patch.imagen_url = await uploadImagen(file);
-  const { error } = await supabase.from("productos").update(patch).eq("id", id);
+  const nuevas = newFiles.length ? await uploadImagenes(newFiles) : [];
+  const imagenes = [...keepImagenes, ...nuevas];
+  const { error } = await supabase.from("productos").update({ ...data, imagenes }).eq("id", id);
   if (error) throw error;
 }
 

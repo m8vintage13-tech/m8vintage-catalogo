@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { Producto, NuevoProducto, Categoria } from "../lib/products";
 import { createProducto, updateProducto } from "../lib/products";
+import { parseTalles } from "../lib/format";
 import { C, font, eyebrow } from "../theme";
+import { IconTrash } from "./Icons";
+
+const TALLES_DISPONIBLES = ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "ÚNICO"];
 
 export function ProductForm({
   initial,
@@ -14,39 +18,65 @@ export function ProductForm({
   onCancel: () => void;
 }) {
   const [nombre, setNombre] = useState(initial?.nombre ?? "");
-  const [precio, setPrecio] = useState(initial?.precio ?? 0);
-  const [talle, setTalle] = useState(initial?.talle ?? "");
+  const [precio, setPrecio] = useState(initial ? String(initial.precio) : "");
+  const [talles, setTalles] = useState<string[]>(
+    initial ? parseTalles(initial.talle) : []
+  );
   const [categoria, setCategoria] = useState<Categoria>(initial?.categoria ?? "VINTAGE");
+  const [estado, setEstado] = useState(initial?.estado ?? 10);
   const [descripcion, setDescripcion] = useState(initial?.descripcion ?? "");
-  const [orden, setOrden] = useState(initial?.orden ?? 0);
-  const [file, setFile] = useState<File | null>(null);
+  // Fotos existentes que se conservan (el admin puede sacar alguna) + fotos
+  // nuevas a subir. El resultado final es la unión de ambas listas.
+  const [keepImagenes, setKeepImagenes] = useState<string[]>(initial?.imagenes ?? []);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isEdit = Boolean(initial);
+  const totalFotos = keepImagenes.length + newFiles.length;
+
+  function toggleTalle(t: string) {
+    setTalles((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  }
+
+  function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? []);
+    setNewFiles((prev) => [...prev, ...picked]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!isEdit && !file) {
-      setError("Subí una foto del producto.");
+    if (totalFotos === 0) {
+      setError("Subí al menos una foto del producto.");
+      return;
+    }
+    if (talles.length === 0) {
+      setError("Elegí al menos un talle.");
+      return;
+    }
+    const precioNum = Number(precio);
+    if (!precio || Number.isNaN(precioNum) || precioNum <= 0) {
+      setError("Ingresá un precio.");
       return;
     }
     setSaving(true);
     try {
       const data: NuevoProducto = {
         nombre,
-        precio,
-        talle,
+        precio: precioNum,
+        talle: talles.join(", "),
         categoria,
+        estado,
         descripcion,
-        orden,
         vendido: initial?.vendido ?? false,
       };
       if (isEdit && initial) {
-        await updateProducto(initial.id, data, file ?? undefined);
+        await updateProducto(initial.id, data, newFiles, keepImagenes);
       } else {
-        await createProducto(data, file!);
+        await createProducto(data, newFiles);
       }
       onDone();
     } catch (err) {
@@ -68,6 +98,30 @@ export function ProductForm({
     marginTop: 5,
   };
   const label = { ...eyebrow, color: C.MUTED_L, fontSize: 10 };
+
+  const thumbStyle = {
+    position: "relative" as const,
+    width: 72,
+    height: 72,
+    borderRadius: 8,
+    overflow: "hidden",
+    background: C.CARD2,
+    border: `1px solid ${C.LINE}`,
+    flexShrink: 0,
+  };
+  const removeBtnStyle = {
+    position: "absolute" as const,
+    top: 3,
+    right: 3,
+    width: 20,
+    height: 20,
+    display: "grid",
+    placeItems: "center",
+    borderRadius: "50%",
+    border: "none",
+    background: "rgba(0,0,0,0.65)",
+    cursor: "pointer",
+  };
 
   return (
     <div
@@ -101,14 +155,50 @@ export function ProductForm({
         </h2>
 
         <form onSubmit={onSubmit}>
-          <label style={label}>
-            Foto {isEdit && "(dejar vacío para mantener la actual)"}
-          </label>
+          <label style={label}>Fotos (la primera es la portada)</label>
+
+          {totalFotos > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+              {keepImagenes.map((url, i) => (
+                <div key={url + i} style={thumbStyle}>
+                  <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <button
+                    type="button"
+                    title="Sacar foto"
+                    onClick={() => setKeepImagenes((prev) => prev.filter((_, idx) => idx !== i))}
+                    style={removeBtnStyle}
+                  >
+                    <IconTrash size={11} color={C.CREAM} />
+                  </button>
+                </div>
+              ))}
+              {newFiles.map((f, i) => (
+                <div key={f.name + f.lastModified + i} style={thumbStyle}>
+                  <img
+                    src={URL.createObjectURL(f)}
+                    alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                  <button
+                    type="button"
+                    title="Sacar foto"
+                    onClick={() => setNewFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                    style={removeBtnStyle}
+                  >
+                    <IconTrash size={11} color={C.CREAM} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            style={{ ...inputStyle, padding: 8 }}
+            multiple
+            onChange={onPickFiles}
+            style={{ ...inputStyle, padding: 8, marginTop: totalFotos > 0 ? 10 : 5 }}
           />
 
           <div style={{ marginTop: 14 }}>
@@ -121,27 +211,45 @@ export function ProductForm({
             />
           </div>
 
-          <div style={{ display: "flex", gap: 12, marginTop: 14 }}>
-            <div style={{ flex: 1 }}>
-              <label style={label}>Precio</label>
-              <input
-                type="number"
-                value={precio}
-                onChange={(e) => setPrecio(Number(e.target.value))}
-                required
-                min={0}
-                style={inputStyle}
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={label}>Talle</label>
-              <input
-                value={talle}
-                onChange={(e) => setTalle(e.target.value)}
-                required
-                placeholder="M, L, Único…"
-                style={inputStyle}
-              />
+          <div style={{ marginTop: 14 }}>
+            <label style={label}>Precio</label>
+            <input
+              type="number"
+              value={precio}
+              onChange={(e) => setPrecio(e.target.value)}
+              placeholder="0"
+              required
+              min={0}
+              style={inputStyle}
+            />
+          </div>
+
+          <div style={{ marginTop: 14 }}>
+            <label style={label}>Talle (elegí uno o varios)</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 7 }}>
+              {TALLES_DISPONIBLES.map((t) => {
+                const on = talles.includes(t);
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => toggleTalle(t)}
+                    style={{
+                      padding: "6px 11px",
+                      borderRadius: 6,
+                      border: `1px solid ${on ? C.BEIGE : C.LINE}`,
+                      background: on ? C.BEIGE : "transparent",
+                      color: on ? C.INK : C.MUTED_L,
+                      fontWeight: 800,
+                      fontSize: 12,
+                      fontFamily: font,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {t}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -155,14 +263,18 @@ export function ProductForm({
               >
                 <option value="VINTAGE">VINTAGE</option>
                 <option value="NUEVO">NUEVO</option>
+                <option value="USADO">USADO</option>
               </select>
             </div>
             <div style={{ flex: 1 }}>
-              <label style={label}>Orden</label>
+              <label style={label}>Estado (1-10)</label>
               <input
                 type="number"
-                value={orden}
-                onChange={(e) => setOrden(Number(e.target.value))}
+                value={estado}
+                onChange={(e) => setEstado(Math.min(10, Math.max(1, Number(e.target.value))))}
+                required
+                min={1}
+                max={10}
                 style={inputStyle}
               />
             </div>

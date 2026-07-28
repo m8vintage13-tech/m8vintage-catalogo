@@ -192,7 +192,7 @@ export default function Admin() {
                 }}
               >
                 <img
-                  src={p.imagen_url}
+                  src={p.imagenes[0]}
                   alt=""
                   style={{ width: 48, height: 48, borderRadius: 8, objectFit: "cover", background: C.INK }}
                 />

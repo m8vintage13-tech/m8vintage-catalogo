@@ -10,6 +10,7 @@ export const C = {
   MUTED_L: "#9C968A",
   LINE: "#2A2A2A",
   SAGE: "#7FA383",
+  RUST: "#B5654A",
 } as const;
 
 export const font = "Arial, Helvetica, sans-serif";
