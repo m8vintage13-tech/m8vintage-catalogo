@@ -96,6 +96,18 @@ export default function Product() {
           .m8-gallery-frame img { max-height: none; }
           .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame,
           .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame img { max-height: none; }
+          .m8-gallery:has(.m8-thumb-row) {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 14px;
+          }
+          .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame { flex-shrink: 0; }
+          .m8-gallery:has(.m8-thumb-row) .m8-thumb-row {
+            flex-direction: column;
+            flex-wrap: nowrap;
+            margin-top: 0;
+          }
           .m8-tags-row { margin-bottom: 18px; }
           .m8-name { margin-bottom: 14px; }
           .m8-desc { font-size: 15px; line-height: 1.7; margin-bottom: 24px; -webkit-line-clamp: unset; display: block; overflow: visible; }
