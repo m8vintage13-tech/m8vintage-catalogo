@@ -70,6 +70,18 @@ export default function Product() {
         .m8-gallery-frame img { display: block; max-width: 100%; max-height: clamp(220px, 42vh, 420px); width: auto; height: auto; }
         .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame,
         .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame img { max-height: clamp(200px, 37vh, 420px); }
+        .m8-gallery:has(.m8-thumb-row) {
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 10px;
+        }
+        .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame { min-width: 0; }
+        .m8-gallery:has(.m8-thumb-row) .m8-thumb-row {
+          flex-direction: column;
+          flex-wrap: nowrap;
+          margin-top: 0;
+        }
         .m8-tags-row { margin-bottom: 14px; }
         .m8-name { font-size: clamp(1.7rem, 8vw, 3.6rem); margin: 0 0 8px; }
         .m8-desc {
@@ -96,18 +108,8 @@ export default function Product() {
           .m8-gallery-frame img { max-height: none; }
           .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame,
           .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame img { max-height: none; }
-          .m8-gallery:has(.m8-thumb-row) {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 14px;
-          }
-          .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame { flex-shrink: 0; }
-          .m8-gallery:has(.m8-thumb-row) .m8-thumb-row {
-            flex-direction: column;
-            flex-wrap: nowrap;
-            margin-top: 0;
-          }
+          .m8-gallery:has(.m8-thumb-row) { gap: 14px; }
+          .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame { flex-shrink: 0; min-width: auto; }
           .m8-tags-row { margin-bottom: 18px; }
           .m8-name { margin-bottom: 14px; }
           .m8-desc { font-size: 15px; line-height: 1.7; margin-bottom: 24px; -webkit-line-clamp: unset; display: block; overflow: visible; }
