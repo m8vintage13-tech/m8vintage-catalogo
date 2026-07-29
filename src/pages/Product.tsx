@@ -62,11 +62,12 @@ export default function Product() {
         .m8-shell-inner { padding: 16px 16px 28px; max-width: ${maxW}px; margin: 0 auto; }
         .m8-header-row { padding-bottom: 12px; margin-bottom: 16px; }
         .m8-detail { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .m8-gallery { text-align: center; }
         .m8-gallery-frame {
-          display: flex; align-items: center; justify-content: center;
-          max-height: clamp(220px, 42vh, 420px);
+          display: inline-flex; align-items: center; justify-content: center;
+          max-width: 100%; max-height: clamp(220px, 42vh, 420px);
         }
-        .m8-gallery-frame img { max-width: 100%; max-height: clamp(220px, 42vh, 420px); width: auto; height: auto; }
+        .m8-gallery-frame img { display: block; max-width: 100%; max-height: clamp(220px, 42vh, 420px); width: auto; height: auto; }
         .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame,
         .m8-gallery:has(.m8-thumb-row) .m8-gallery-frame img { max-height: clamp(200px, 37vh, 420px); }
         .m8-tags-row { margin-bottom: 14px; }
