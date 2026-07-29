@@ -158,7 +158,7 @@ export default function Product() {
             <img
               src={activa}
               alt={p.nombre}
-              style={{ width: "100%", height: "100%", objectFit: "cover", viewTransitionName: morphName }}
+              style={{ width: "100%", height: "100%", objectFit: "contain", viewTransitionName: morphName }}
             />
           </div>
 
@@ -183,7 +183,7 @@ export default function Product() {
                       flexShrink: 0,
                     }}
                   >
-                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                   </button>
                 );
               })}

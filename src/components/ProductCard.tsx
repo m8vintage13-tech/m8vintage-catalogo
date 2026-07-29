@@ -54,7 +54,7 @@ export function ProductCard({ p, index = 0 }: { p: Producto; index?: number }) {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain",
               opacity: p.vendido ? 0.4 : 1,
               transform: hover ? "scale(1.06)" : "scale(1)",
               transition: "transform .6s cubic-bezier(0.16,1,0.3,1)",
