@@ -2,7 +2,6 @@ import { C, display, font, grainUrl, maxW } from "../theme";
 import {
   INSTAGRAM_URL,
   INSTAGRAM_USER,
-  LOCATION,
   WHATSAPP_NUMBER,
 } from "../config";
 import { useEffect, useState } from "react";
