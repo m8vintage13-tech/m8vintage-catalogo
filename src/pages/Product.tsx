@@ -38,17 +38,17 @@ export default function Product() {
         display: "inline-flex",
         alignItems: "center",
         gap: 8,
-        color: C.MUTED_L,
+        color: C.CREAM,
         textDecoration: "none",
         fontWeight: 800,
         fontSize: 12,
         letterSpacing: "0.12em",
         textTransform: "uppercase",
         padding: "13px 4px",
-        margin: "-13px -4px",
+        margin: "-6px -4px",
       }}
     >
-      <IconArrowLeft size={17} color={C.MUTED_L} /> Volver
+      <IconArrowLeft size={17} color={C.CREAM} /> Volver
     </Link>
   );
 
