@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import type { Producto, NuevoProducto, Categoria } from "../lib/products";
 import { createProducto, updateProducto } from "../lib/products";
 import { parseTalles } from "../lib/format";
+import { compressImages } from "../lib/image";
 import { C, font, eyebrow } from "../theme";
 import { IconTrash } from "./Icons";
 
@@ -31,6 +32,7 @@ export function ProductForm({
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isEdit = Boolean(initial);
@@ -40,10 +42,19 @@ export function ProductForm({
     setTalles((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
   }
 
-  function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? []);
-    setNewFiles((prev) => [...prev, ...picked]);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (picked.length === 0) return;
+    // Comprimir en el navegador antes de guardar en el estado: así lo que se
+    // sube a Supabase Storage ya pesa poco (evita agotar el egress gratis).
+    setCompressing(true);
+    try {
+      const compressed = await compressImages(picked);
+      setNewFiles((prev) => [...prev, ...compressed]);
+    } finally {
+      setCompressing(false);
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -197,9 +208,20 @@ export function ProductForm({
             type="file"
             accept="image/*"
             multiple
+            disabled={compressing}
             onChange={onPickFiles}
-            style={{ ...inputStyle, padding: 8, marginTop: totalFotos > 0 ? 10 : 5 }}
+            style={{
+              ...inputStyle,
+              padding: 8,
+              marginTop: totalFotos > 0 ? 10 : 5,
+              opacity: compressing ? 0.6 : 1,
+            }}
           />
+          {compressing && (
+            <p style={{ color: C.MUTED_L, fontSize: 12, margin: "6px 0 0" }}>
+              Comprimiendo…
+            </p>
+          )}
 
           <div style={{ marginTop: 14 }}>
             <label style={label}>Nombre</label>
