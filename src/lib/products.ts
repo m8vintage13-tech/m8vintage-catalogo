@@ -107,6 +107,23 @@ async function uploadImagenes(files: File[]): Promise<string[]> {
   return Promise.all(files.map(uploadImagen));
 }
 
+// Borra archivos del bucket a partir de sus URLs públicas. Se usa al eliminar
+// un producto o al sacarle una foto en edición, para que no queden huérfanos
+// ocupando espacio de Storage. No es crítico si falla (el producto/edición ya
+// se guardó igual), así que solo lo logueamos.
+function urlToStoragePath(url: string): string | null {
+  const marker = `/object/public/${BUCKET}/`;
+  const idx = url.indexOf(marker);
+  return idx === -1 ? null : url.slice(idx + marker.length);
+}
+
+async function deleteImagenes(urls: string[]): Promise<void> {
+  const paths = urls.map(urlToStoragePath).filter((p): p is string => Boolean(p));
+  if (paths.length === 0) return;
+  const { error } = await supabase.storage.from(BUCKET).remove(paths);
+  if (error) console.error("No se pudieron borrar fotos del storage:", error);
+}
+
 export async function createProducto(
   data: NuevoProducto,
   files: File[]
@@ -152,10 +169,20 @@ export async function updateProducto(
     saveDemoData();
     return;
   }
+  const { data: actual } = await supabase
+    .from("productos")
+    .select("imagenes")
+    .eq("id", id)
+    .maybeSingle();
+  const anteriores = ((actual as { imagenes?: string[] } | null)?.imagenes ?? []) as string[];
+
   const nuevas = newFiles.length ? await uploadImagenes(newFiles) : [];
   const imagenes = [...keepImagenes, ...nuevas];
   const { error } = await supabase.from("productos").update({ ...data, imagenes }).eq("id", id);
   if (error) throw error;
+
+  const removidas = anteriores.filter((url) => !keepImagenes.includes(url));
+  if (removidas.length) await deleteImagenes(removidas);
 }
 
 export async function deleteProducto(id: string): Promise<void> {
@@ -164,8 +191,17 @@ export async function deleteProducto(id: string): Promise<void> {
     saveDemoData();
     return;
   }
+  const { data: actual } = await supabase
+    .from("productos")
+    .select("imagenes")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await supabase.from("productos").delete().eq("id", id);
   if (error) throw error;
+
+  const imagenes = (actual as { imagenes?: string[] } | null)?.imagenes ?? [];
+  if (imagenes.length) await deleteImagenes(imagenes);
 }
 
 export async function toggleVendido(id: string, vendido: boolean): Promise<void> {
