@@ -172,7 +172,7 @@ export function ProductForm({
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
               {keepImagenes.map((url, i) => (
                 <div key={url + i} style={thumbStyle}>
-                  <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={url} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   <button
                     type="button"
                     title="Sacar foto"
@@ -188,6 +188,7 @@ export function ProductForm({
                   <img
                     src={URL.createObjectURL(f)}
                     alt=""
+                    loading="lazy"
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                   <button

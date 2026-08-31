@@ -194,6 +194,7 @@ export default function Admin() {
                 <img
                   src={p.imagenes[0]}
                   alt=""
+                  loading="lazy"
                   style={{ width: 48, height: 48, borderRadius: 8, objectFit: "cover", background: C.INK }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
